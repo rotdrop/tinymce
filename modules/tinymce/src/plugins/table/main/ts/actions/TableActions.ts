@@ -29,6 +29,7 @@ export type ElementTableAction = TableAction<RunOperation.TargetElement>;
 export interface TableActions {
   deleteRow: CombinedTargetsTableAction;
   deleteColumn: CombinedTargetsTableAction;
+  insertRowAtIndex: (targetIndex: any) => (editor: Editor) => void;
   insertRowsBefore: CombinedTargetsTableAction;
   insertRowsAfter: CombinedTargetsTableAction;
   insertColumnsBefore: CombinedTargetsTableAction;
@@ -60,7 +61,7 @@ export const TableActions = (editor: Editor, lazyWire: () => ResizeWire, selecti
   // Optional.none gives the default cloneFormats.
   const cloneFormats = getCloneElements(editor);
 
-  const execute = <T> (operation: RunOperation.OperationCallback<T>, guard, mutate, lazyWire) =>
+  const execute = <T> (operation: RunOperation.OperationCallback<T>, guard: (table: SugarElement<HTMLTableElement>) => boolean, mutate: (e1: SugarElement<any>, e2: SugarElement<any>) => void, lazyWire: () => ResizeWire) =>
     (table: SugarElement<HTMLTableElement>, target: T): Optional<Range> => {
       Util.removeDataStyle(table);
       const wire = lazyWire();
@@ -89,6 +90,16 @@ export const TableActions = (editor: Editor, lazyWire: () => ResizeWire, selecti
   const deleteColumn = execute(TableOperations.eraseColumns, lastColumnGuard, Fun.noop, lazyWire);
 
   const insertRowsBefore = execute(TableOperations.insertRowsBefore, Fun.always, Fun.noop, lazyWire);
+
+  const insertRowAtIndex = (index) =>
+    () => {
+      const targetIndex = Number.parseInt(index, 10);
+      if (Number.isNaN(targetIndex)) {
+        return;
+      } else {
+        execute(TableOperations.insertRowAtIndex(targetIndex), Fun.always, Fun.noop, lazyWire);
+      }
+    };
 
   const insertRowsAfter = execute(TableOperations.insertRowsAfter, Fun.always, Fun.noop, lazyWire);
 
@@ -158,6 +169,7 @@ export const TableActions = (editor: Editor, lazyWire: () => ResizeWire, selecti
     deleteColumn,
     insertRowsBefore,
     insertRowsAfter,
+    insertRowAtIndex,
     insertColumnsBefore,
     insertColumnsAfter,
     mergeCells,

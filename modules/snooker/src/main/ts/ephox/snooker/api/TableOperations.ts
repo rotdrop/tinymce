@@ -2,7 +2,7 @@ import { Arr, Fun, Optional } from '@ephox/katamari';
 import { Remove, SugarElement, SugarNode } from '@ephox/sugar';
 import * as DetailsList from '../model/DetailsList';
 import {
-  ExtractMergable, ExtractPaste, ExtractPasteRows, onCell, onCells, onMergable, onPaste, onPasteByEditor, onUnmergable, run, TargetSelection
+  ExtractMergable, ExtractPaste, ExtractPasteRows, onCell, onCells, onMergable, onNone, onPaste, onPasteByEditor, onUnmergable, run, TargetSelection
 } from '../model/RunOperation';
 import * as TableMerge from '../model/TableMerge';
 import * as Transitions from '../model/Transitions';
@@ -89,6 +89,15 @@ const opInsertRowsBefore = function (grid: Structs.RowCells[], details: Structs.
   }, grid);
   return bundle(newGrid, targetIndex, details[0].column);
 };
+
+const opInsertRowsAtIndex = (targetIndex: number) =>
+  (grid: Structs.RowCells[], details: Structs.DetailExt[], comparator: CompElm, genWrappers: GeneratorsModification) => {
+    const rows = uniqueRows(details);
+    const newGrid = Arr.foldl(rows, (newG, _row) =>
+      ModificationOperations.insertRowAt(newG, targetIndex, 0, comparator, genWrappers.getOrInit),
+    grid);
+    return bundle(newGrid, targetIndex, details[0].column);
+  };
 
 const opInsertRowAfter = function (grid: Structs.RowCells[], detail: Structs.DetailExt, comparator: CompElm, genWrappers: GeneratorsModification) {
   const example = detail.row;
@@ -287,6 +296,7 @@ export const getCellsType = <T>(cells: T[], headerPred: (x: T) => boolean): Opti
 const resize = Adjustments.adjustWidthTo;
 
 export const insertRowBefore = run(opInsertRowBefore, onCell, Fun.noop, Fun.noop, Generators.modification);
+export const insertRowAtIndex = (targetIndex: number) => run(opInsertRowsAtIndex(targetIndex), onNone, Fun.noop, Fun.noop, Generators.modification);
 export const insertRowsBefore = run(opInsertRowsBefore, onCells, Fun.noop, Fun.noop, Generators.modification);
 export const insertRowAfter = run(opInsertRowAfter, onCell, Fun.noop, Fun.noop, Generators.modification);
 export const insertRowsAfter = run(opInsertRowsAfter, onCells, Fun.noop, Fun.noop, Generators.modification);

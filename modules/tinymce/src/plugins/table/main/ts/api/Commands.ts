@@ -79,6 +79,17 @@ const registerCommands = (editor: Editor, actions: TableActions, cellSelection: 
     });
   });
 
+  const actOnProvided = (presumedTable, execute: (table: SugarElement<HTMLTableElement>) => void): void => {
+    if (presumedTable instanceof HTMLTableElement) {
+      const table = SugarElement.fromDom(presumedTable);
+
+      execute(table);
+
+      editor.focus();
+      Util.removeDataStyle(table);
+    }
+  };
+
   const copyRowSelection = () => getSelectionStartCell(editor).map((cell) =>
     getTableFromCell(cell).bind((table) => {
       const targets = TableTargets.forMenu(selections, table, cell);
@@ -113,6 +124,7 @@ const registerCommands = (editor: Editor, actions: TableActions, cellSelection: 
   Obj.each({
     mceTableSplitCells: () => actOnSelection(actions.unmergeCells),
     mceTableMergeCells: () => actOnSelection(actions.mergeCells),
+    mceTableInsertRowAtIndex: (table: any, index: any) => actOnProvided(table, actions.insertRowAtIndex(index)),
     mceTableInsertRowBefore: () => actOnSelection(actions.insertRowsBefore),
     mceTableInsertRowAfter: () => actOnSelection(actions.insertRowsAfter),
     mceTableInsertColBefore: () => actOnSelection(actions.insertColumnsBefore),
