@@ -22,12 +22,14 @@ export interface StyleSheetLoader {
   unload: (url: string) => void;
   unloadAll: (urls: string[]) => void;
   _setReferrerPolicy: (referrerPolicy: ReferrerPolicy) => void;
+  _setNonce: (nonce: string) => void;
 }
 
 export interface StyleSheetLoaderSettings {
   maxLoadTime?: number;
   contentCssCors?: boolean;
   referrerPolicy?: ReferrerPolicy;
+  nonce?: string;
 }
 
 interface StyleState {
@@ -49,6 +51,10 @@ export function StyleSheetLoader(documentOrShadowRoot: Document | ShadowRoot, se
 
   const _setReferrerPolicy = (referrerPolicy: ReferrerPolicy) => {
     settings.referrerPolicy = referrerPolicy;
+  };
+
+  const _setNonce = (nonce: string) => {
+    settings.nonce = nonce;
   };
 
   const addStyle = (element: SugarElement<HTMLStyleElement>) => {
@@ -180,6 +186,9 @@ export function StyleSheetLoader(documentOrShadowRoot: Document | ShadowRoot, se
       // Note: Don't use link.referrerPolicy = ... here as it doesn't work on Safari
       Attribute.set(linkElem, 'referrerpolicy', settings.referrerPolicy);
     }
+    if (settings.nonce) {
+      link.setAttribute('nonce', settings.nonce);
+    }
 
     link = linkElem.dom;
     link.onload = waitForWebKitLinkLoaded;
@@ -256,6 +265,7 @@ export function StyleSheetLoader(documentOrShadowRoot: Document | ShadowRoot, se
     loadAll,
     unload,
     unloadAll,
-    _setReferrerPolicy
+    _setReferrerPolicy,
+    _setNonce
   };
 }

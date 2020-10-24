@@ -40,6 +40,7 @@ const each = Tools.each, grep = Tools.grep;
 
 export interface ScriptLoaderSettings {
   referrerPolicy?: ReferrerPolicy;
+  nonce?: string;
 }
 
 export interface ScriptLoaderConstructor {
@@ -71,6 +72,10 @@ class ScriptLoader {
 
   public _setReferrerPolicy(referrerPolicy: ReferrerPolicy) {
     this.settings.referrerPolicy = referrerPolicy;
+  }
+
+  public _setNonce(nonce: string) {
+    this.settings.nonce = nonce;
   }
 
   /**
@@ -129,6 +134,10 @@ class ScriptLoader {
     if (this.settings.referrerPolicy) {
       // Note: Don't use elm.referrerPolicy = ... here as it doesn't work on Safari
       dom.setAttrib(elm, 'referrerpolicy', this.settings.referrerPolicy);
+    }
+
+    if (this.settings.nonce) {
+      elm.setAttribute('nonce', this.settings.nonce);
     }
 
     elm.onload = done;
