@@ -12,12 +12,26 @@
  * @private
  */
 
-(function () {
+( function( factory ) {
+        if ( typeof define === "function" && define.amd ) {
+
+                // AMD. Register as an anonymous module.
+                define( [
+                        "jquery",
+                ], factory );
+        } else {
+
+                // Browser globals
+                factory( jQuery );
+        }
+}( function( jQuery ) {
   var undef, lazyLoading, patchApplied;
   var delayedInits = [], $, win;
 
   win = typeof global !== 'undefined' ? global : window;
-  $ = win.jQuery;
+  $ = jQuery;
+
+  console.info('TINYMCE JQUERY: ', $.fn.jquery);
 
   var getTinymce = function () {
     // Reference to tinymce needs to be lazily evaluated since tinymce
@@ -382,4 +396,4 @@
       return ed ? ed.getContent({ save: true }) : jQueryFn.attr.apply($(node), args);
     };
   };
-})();
+}));
